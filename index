@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Trivia Escolar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef1fb;
+      padding: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .option {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 5px 0;
+      cursor: pointer;
+      background-color: white;
+    }
+    .option:hover {
+      background-color: #f0f0f0;
+    }
+    .correct {
+      background-color: #d4edda !important;
+      color: #155724;
+    }
+    .incorrect {
+      background-color: #f8d7da !important;
+      color: #721c24;
+    }
+    .hidden {
+      display: none;
+    }
+    #nextBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+    }
+    #nextBtn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="animate__animated animate__fadeInDown">Trivia Escolar</h1>
+  <div id="quiz" class="animate__animated animate__fadeIn"></div>
+  <button id="nextBtn" disabled>Siguiente</button>
+  <div id="result" class="hidden"></div>
+
+  <script>
+    const questions = [
+      {
+        question: "¿Cuál es la capital de México?",
+        options: ["Monterrey", "Guadalajara", "Ciudad de México", "Puebla"],
+        answer: 2
+      },
+      {
+        question: "¿Qué planeta es el más cercano al sol?",
+        options: ["Venus", "Mercurio", "Tierra", "Marte"],
+        answer: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    const quiz = document.getElementById('quiz');
+    const nextBtn = document.getElementById('nextBtn');
+    const result = document.getElementById('result');
+    let hasAnswered = false;
+
+    function loadQuestion() {
+      quiz.innerHTML = '';
+      nextBtn.disabled = true;
+      hasAnswered = false;
+      const q = questions[currentQuestion];
+
+      const questionEl = document.createElement('div');
+      questionEl.className = 'question';
+      questionEl.textContent = `${currentQuestion + 1}. ${q.question}`;
+      quiz.appendChild(questionEl);
+
+      q.options.forEach((option, index) => {
+        const optEl = document.createElement('div');
+        optEl.className = 'option';
+        optEl.textContent = option;
+        optEl.addEventListener('click', () => {
+          if (hasAnswered) return;
+          hasAnswered = true;
+          showAnswer(index);
+        });
+        quiz.appendChild(optEl);
+      });
+    }
+
+    function showAnswer(selectedIndex) {
+      const q = questions[currentQuestion];
+      const options = document.querySelectorAll('.option');
+      options.forEach((opt, i) => {
+        if (i === q.answer) opt.classList.add('correct');
+        if (i === selectedIndex && i !== q.answer) opt.classList.add('incorrect');
+        opt.style.pointerEvents = 'none';
+      });
+
+      if (selectedIndex === q.answer) score++;
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      quiz.classList.add('hidden');
+      nextBtn.classList.add('hidden');
+      result.classList.remove('hidden');
+      let message = '';
+      if (score === questions.length) message = '¡Excelente trabajo!';
+      else if (score >= questions.length / 2) message = 'Muy bien, sigue practicando.';
+      else message = 'Puedes mejorar, ¡ánimo!';
+
+      result.innerHTML = `<h2>Puntaje final: ${score}/${questions.length}</h2><p>${message}</p>`;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
