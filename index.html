@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Trivia Escolar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .question { margin-bottom: 20px; }
+    .option { padding: 10px; border: 1px solid #ccc; margin: 5px 0; cursor: pointer; }
+    .correct { background-color: #d4edda; color: #155724; }
+    .incorrect { background-color: #f8d7da; color: #721c24; }
+    .hidden { display: none; }
+    #nextBtn:disabled { background: #ccc; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Trivia Escolar</h1>
+  <div id="quiz" class="animate__animated animate__fadeIn">
+    <!-- Preguntas aquí -->
+  </div>
+  <button id="nextBtn" disabled>Siguiente</button>
+
+  <div id="result" class="hidden"></div>
+
+  <script>
+    const questions = [
+      {
+        question: "¿Cuál es la capital de México?",
+        options: ["Guadalajara", "Monterrey", "Ciudad de México", "Puebla"],
+        answer: 2
+      },
+      {
+        question: "¿Cuántos planetas hay en el sistema solar?",
+        options: ["7", "8", "9", "10"],
+        answer: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    const quiz = document.getElementById('quiz');
+    const nextBtn = document.getElementById('nextBtn');
+    const result = document.getElementById('result');
+
+    function loadQuestion() {
+      quiz.innerHTML = '';
+      nextBtn.disabled = true;
+      const q = questions[currentQuestion];
+      const questionEl = document.createElement('div');
+      questionEl.classList.add('question');
+      questionEl.textContent = q.question;
+      quiz.appendChild(questionEl);
+
+      q.options.forEach((option, i) => {
+        const btn = document.createElement('div');
+        btn.classList.add('option');
+        btn.textContent = option;
+        btn.addEventListener('click', () => selectAnswer(btn, i));
+        quiz.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(btn, index) {
+      const q = questions[currentQuestion];
+      const options = document.querySelectorAll('.option');
+      options.forEach((opt, i) => {
+        opt.classList.add(i === q.answer ? 'correct' : '');
+        if (i !== q.answer && i === index) opt.classList.add('incorrect');
+        opt.style.pointerEvents = 'none'; // desactiva clics después de responder
+      });
+
+      if (index === q.answer) score++;
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      quiz.classList.add('hidden');
+      nextBtn.classList.add('hidden');
+      result.classList.remove('hidden');
+      let feedback = "";
+      if (score === questions.length) {
+        feedback = "¡Excelente! ¡Lo hiciste perfecto!";
+      } else if (score >= questions.length / 2) {
+        feedback = "¡Buen trabajo! Puedes mejorar un poco más.";
+      } else {
+        feedback = "Sigue practicando, ¡tú puedes!";
+      }
+      result.innerHTML = `<h2>Puntaje total: ${score}/${questions.length}</h2><p>${feedback}</p>`;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
